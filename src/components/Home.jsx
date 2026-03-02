@@ -167,6 +167,8 @@ const Home = () => {
   const [noData, setNoData] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  const [view, setView] = useState("grid"); // "grid" | "detail"
+
   const smallRef = useRef(null);
   const mainRef = useRef(null);
 
@@ -208,6 +210,7 @@ const handleSearch = () => {
     }
 
     setFilteredArtists(result);
+    setView("grid");
 
     // ✅ scroll ONLY now
     setTimeout(() => {
@@ -234,27 +237,46 @@ const handleSearch = () => {
           artists={artists}
         />
 
-        {/* Main Image */}
-        <div ref={mainRef} className="flex flex-col md:flex-row gap-6">
-          <div className="md:w-[360px]">
-            <Mainimage artist={activeArtist} />
+        {/* Detail View */}
+        {view === "detail" && (
+          <div ref={mainRef} className="flex flex-col gap-4">
+            <button
+              onClick={() => setView("grid")}
+              className="flex items-center gap-2 w-fit text-teal-400 hover:text-teal-300 transition-colors text-sm font-medium"
+            >
+              ← Back to Artists
+            </button>
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-[360px]">
+                <Mainimage artist={activeArtist} />
+              </div>
+              <div className="flex-1">
+                <Tab artist={activeArtist} />
+              </div>
+            </div>
           </div>
-          <div className="flex-1">
-            <Tab artist={activeArtist} />
-          </div>
-        </div>
+        )}
 
-        {/* Small Images */}
-        {filteredArtists.length > 0 && (
+        {/* Grid View */}
+        {view === "grid" && filteredArtists.length > 0 && (
           <div ref={smallRef}>
+            <div className="mb-8">
+              <p className="text-xs tracking-[0.4em] uppercase text-teal-400 mb-2">Our Collection</p>
+              <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+                Featured <span className="text-teal-400">Artists</span>
+              </h1>
+            </div>
             <Smallimage
               artists={filteredArtists}
-              activeId={activeArtist.id}
+              activeId={activeArtist?.id}
               onSelect={(artist) => {
                 setActiveArtist(artist);
+              }}
+              onMainClick={() => {
+                setView("detail");
                 setTimeout(() => {
                   mainRef.current?.scrollIntoView({ behavior: "smooth" });
-                }, 300);
+                }, 100);
               }}
             />
           </div>
